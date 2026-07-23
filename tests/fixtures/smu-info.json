@@ -1,0 +1,44 @@
+{
+  "@context": "http://iiif.io/api/image/2/context.json",
+  "@id": "https://cdm17242.contentdm.oclc.org/digital/iiif/wes/2539",
+  "height": 1901,
+  "width": 3000,
+  "profile": [
+    "http://iiif.io/api/image/2/level1.json"
+  ],
+  "protocol": "http://iiif.io/api/image",
+  "tiles": [
+    {
+      "scaleFactors": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ],
+      "width": 1024
+    }
+  ],
+  "sizes": [
+    {
+      "width": 3000,
+      "height": 1901
+    },
+    {
+      "width": 1500,
+      "height": 951
+    },
+    {
+      "width": 750,
+      "height": 475
+    },
+    {
+      "width": 375,
+      "height": 238
+    },
+    {
+      "width": 188,
+      "height": 119
+    }
+  ]
+}
