@@ -182,7 +182,8 @@ function closeLightbox() {
   document.body.classList.remove('lightbox-open');
   lbImg.src = '';
   lbIndex = -1;
-  lbOpener?.focus?.();
+  if (lbOpener?.isConnected) lbOpener.focus();
+  else grid.querySelector('.tile')?.focus();
   lbOpener = null;
 }
 
@@ -217,7 +218,7 @@ document.addEventListener('keydown', (e) => {
     const idx = els.indexOf(document.activeElement);
     e.preventDefault();
     if (idx === -1) {
-      els[0].focus();
+      els[e.shiftKey ? els.length - 1 : 0].focus();
     } else if (e.shiftKey) {
       els[(idx - 1 + els.length) % els.length].focus();
     } else {
