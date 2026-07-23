@@ -1,0 +1,12 @@
+{
+  "name": "western-explorer",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test tests/",
+    "harvest": "node scripts/harvest.mjs",
+    "harvest:quick": "node scripts/harvest.mjs --quick",
+    "check-images": "node scripts/check-images.mjs"
+  }
+}
