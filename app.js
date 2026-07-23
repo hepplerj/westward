@@ -149,3 +149,67 @@ async function init() {
 }
 
 init();
+
+// ---------------------------------------------------------------- lightbox
+
+const lightbox = document.getElementById('lightbox');
+const lbImg = lightbox.querySelector('.lb-img');
+const lbTitle = lightbox.querySelector('.lb-title');
+const lbMeta = lightbox.querySelector('.lb-meta');
+const lbSource = lightbox.querySelector('.lb-source');
+
+let lbIndex = -1;
+
+function renderLightbox() {
+  const record = state.displayList[lbIndex];
+  lbImg.src = record.imageUrl;
+  lbImg.alt = record.title;
+  lbTitle.textContent = record.title;
+  lbMeta.textContent = [record.date, record.creator, record.source].filter(Boolean).join(' · ');
+  lbSource.href = record.sourceUrl;
+}
+
+function stepLightbox(delta) {
+  const n = state.displayList.length;
+  lbIndex = (lbIndex + delta + n) % n;
+  renderLightbox();
+}
+
+function closeLightbox() {
+  lightbox.hidden = true;
+  document.body.classList.remove('lightbox-open');
+  lbImg.src = '';
+  lbIndex = -1;
+}
+
+openLightbox = function (displayIndex) {
+  if (!state.displayList[displayIndex]) return;
+  lbIndex = displayIndex;
+  renderLightbox();
+  lightbox.hidden = false;
+  document.body.classList.add('lightbox-open');
+  lightbox.querySelector('.lb-close').focus();
+};
+
+lightbox.querySelector('.lb-close').addEventListener('click', closeLightbox);
+lightbox.querySelector('.lb-prev').addEventListener('click', () => stepLightbox(-1));
+lightbox.querySelector('.lb-next').addEventListener('click', () => stepLightbox(1));
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox) closeLightbox(); // backdrop only
+});
+
+document.addEventListener('keydown', (e) => {
+  if (lightbox.hidden) return;
+  if (e.key === 'Escape') closeLightbox();
+  else if (e.key === 'ArrowLeft') stepLightbox(-1);
+  else if (e.key === 'ArrowRight') stepLightbox(1);
+});
+
+let touchStartX = null;
+lightbox.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+lightbox.addEventListener('touchend', (e) => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 60) stepLightbox(dx > 0 ? -1 : 1);
+  touchStartX = null;
+}, { passive: true });

@@ -11,7 +11,19 @@
 <h1 class="site-title">Western&nbsp;Explorer</h1>
 <main id="grid" aria-label="Photographs of the American West"></main>
 <div id="sentinel" aria-hidden="true"></div>
-<div id="lightbox" class="lightbox" hidden></div>
+<div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photograph detail">
+  <button class="lb-close" type="button" aria-label="Close">&times;</button>
+  <button class="lb-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+  <figure class="lb-figure">
+    <img class="lb-img" alt="">
+    <figcaption class="lb-caption">
+      <span class="lb-title"></span>
+      <span class="lb-meta"></span>
+      <a class="lb-source" target="_blank" rel="noopener">View at source</a>
+    </figcaption>
+  </figure>
+  <button class="lb-next" type="button" aria-label="Next photograph">&#8250;</button>
+</div>
 <script src="app.js"></script>
 </body>
 </html>
