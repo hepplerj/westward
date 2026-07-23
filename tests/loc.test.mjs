@@ -46,3 +46,18 @@ test('parseSearchPage drops items without an open-rights statement', () => {
   };
   assert.deepEqual(parseSearchPage(page), []);
 });
+
+test('parseSearchPage drops items where one rights field is restrictive even if another sounds open', () => {
+  const page = {
+    results: [{
+      id: 'https://www.loc.gov/item/456/',
+      title: 'Mixed-signal photo',
+      image_url: ['//tile.loc.gov/x/yr.jpg#h=640&w=480'],
+      item: {
+        rights_advisory: ['No known restrictions on publication.'],
+        rights_information: ['Publication may be restricted.'],
+      },
+    }],
+  };
+  assert.deepEqual(parseSearchPage(page), []);
+});

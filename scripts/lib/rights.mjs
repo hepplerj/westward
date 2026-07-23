@@ -14,3 +14,11 @@ export function isRightsOpen(rightsText, dateText) {
   const year = yearOf(dateText);
   return year !== null && year <= 1930;
 }
+
+// Evaluate several rights fields together: every non-empty field must be
+// individually open; with no fields at all, fall back to the date rule.
+export function areRightsOpen(fields, dateText) {
+  const present = [fields].flat(2).map((f) => String(f ?? '').trim()).filter(Boolean);
+  if (!present.length) return isRightsOpen(null, dateText);
+  return present.every((f) => isRightsOpen(f, dateText));
+}

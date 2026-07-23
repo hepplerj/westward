@@ -4,7 +4,7 @@
 // Hard limit: 20 JSON requests/minute — the caller passes a fetcher
 // throttled to 3500 ms.
 
-import { isRightsOpen } from '../lib/rights.mjs';
+import { areRightsOpen } from '../lib/rights.mjs';
 
 // (label, search URL without &c=&sp=, quota) — quotas sum to ~1000.
 const QUERIES = [
@@ -50,10 +50,8 @@ function toRecord(result) {
   if (image.width < 300 && image.height < 300) return null; // thumbnail-only item
   const thumb = images.find((i) => i.width >= 400) ?? image;
 
-  const rights = [item.rights_advisory, item.rights_information, result.rights_advisory]
-    .flat().filter(Boolean).join(' ');
   const date = first(result.date) ?? first(item.date);
-  if (!isRightsOpen(rights, date)) return null;
+  if (!areRightsOpen([item.rights_advisory, item.rights_information, result.rights_advisory], date)) return null;
 
   const sourceUrl = String(result.id ?? result.url ?? '');
   if (!sourceUrl.startsWith('http')) return null;
