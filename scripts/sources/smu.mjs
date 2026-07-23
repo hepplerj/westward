@@ -14,9 +14,26 @@
 // per-item rights determination, and never matching the "open" rights regex.
 // Treating it as a real veto would silently drop every SMU item regardless
 // of age, so - mirroring the Portal to Texas History module's handling of
-// its generic terms-of-use `license` - the boilerplate is excluded before
-// being handed to areRightsOpen, letting genuinely undated/unresearched
-// items fall back to the <=1930 date rule.
+// its generic terms-of-use `license` - the known boilerplate sentences are
+// stripped out of the rights text before it is handed to areRightsOpen
+// (rather than discarding the whole field on any substring match); any
+// residual text - e.g. a genuine per-item restriction appended after the
+// boilerplate - still goes through the normal veto evaluation. With no
+// residual text, the item falls back to the <=1930 date rule.
+//
+// restrictionCode: dmGetItemInfo also returns a system field
+// `restrictionCode` (not a customizable metadata field - it is absent from
+// dmGetCollectionFieldInfo/{wes,rwy}, which only lists descriptive-metadata
+// nicknames). CONTENTdm's own API docs and third-party references
+// (OCLC help.oclc.org, the pycdm and DigDC API docs) do not define its
+// semantics; empirically it is CONTENTdm's item-level IP/user access-control
+// flag (see OCLC's "Set item permissions" docs), not a rights/copyright
+// determination. Sampled live across both harvested collections - 14 `wes`
+// items (dates ranging ca. 1870-1913) and 8 `rwy` items (dates ranging
+// 1940s-1947), spanning both boilerplate templates - restrictionCode was
+// "1" on every single item with zero variation, uncorrelated with rights
+// text, date, or item type. A constant value carries no discriminating
+// power, so it is not read or used here.
 
 import { areRightsOpen } from '../lib/rights.mjs';
 
@@ -28,7 +45,25 @@ const SEARCHES = [
   ['rwy', 'railroad', 40],
 ];
 
-const GENERIC_RIGHTS_RE = /please cite degolyer library/i;
+// Known site-wide DeGolyer citation-disclaimer sentences, matched and
+// stripped individually (rather than vetoing the whole field on any
+// substring match) so any genuinely appended per-item restriction survives
+// into the residual text that areRightsOpen evaluates.
+const BOILERPLATE_SENTENCES = [
+  /this item may be protected by copyright law\.?/gi,
+  /please cite degolyer library, southern methodist university as the source of this file\.?/gi,
+  /a high-resolution version of this file may be obtained for a fee\.\s*for details,? see the https:\/\/www\.smu\.edu\/libraries\/degolyer\/using\/images web page\.?/gi,
+  /for more information,? contact degolyer@smu\.edu\.?/gi,
+];
+
+// Strip every known boilerplate sentence out of a rights string and return
+// whatever text (if any) is left over, trimmed. An empty result means the
+// field carried nothing beyond the standard disclaimer.
+function stripBoilerplate(rightsText) {
+  let residual = rightsText;
+  for (const re of BOILERPLATE_SENTENCES) residual = residual.replace(re, ' ');
+  return residual.replace(/\s+/g, ' ').trim();
+}
 
 export function parseSearchItems(json) {
   return (json.items ?? [])
@@ -66,11 +101,13 @@ export function buildRecord({ alias, itemId, itemInfo, imageInfo }) {
   if (!title) return null;
 
   const date = field(itemInfo, 'date', 'datea');
-  // `rights` is the only rights-ish nickname in the wes/rwy schema. Its text
-  // is dropped as boilerplate (treated as no statement) when it matches the
-  // site-wide DeGolyer disclaimer, per the header note above.
+  // `rights` is the only rights-ish nickname in the wes/rwy schema. The
+  // site-wide DeGolyer disclaimer sentences are stripped out (per the header
+  // note above); only genuine residual text, if any, is evaluated as a
+  // rights field.
   const rawRights = field(itemInfo, 'rights');
-  const rightsFields = rawRights && !GENERIC_RIGHTS_RE.test(rawRights) ? [rawRights] : [];
+  const residualRights = rawRights ? stripBoilerplate(rawRights) : '';
+  const rightsFields = residualRights ? [residualRights] : [];
   if (!areRightsOpen(rightsFields, date)) return null;
 
   // We link the 1024px-wide IIIF derivative, so store its dimensions.

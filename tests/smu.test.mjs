@@ -80,3 +80,25 @@ test('buildRecord merges Authorized Subject Terms and Keywords into subjects', (
   assert.ok(r);
   assert.deepEqual(r.subjects, ['Horses', 'Cowboys', 'Men', 'Southwest']);
 });
+
+test('buildRecord drops a pre-1931 item when a genuine restriction is appended after the boilerplate disclaimer', () => {
+  const boilerplate = 'Please cite DeGolyer Library, Southern Methodist University as the source of this file. A high-resolution version of this file may be obtained for a fee. For details, see the https://www.smu.edu/libraries/degolyer/using/images web page. For more information, contact degolyer@smu.edu.';
+  const r = buildRecord({
+    alias: 'wes',
+    itemId: 7,
+    itemInfo: { title: 'Cattle Girl', date: '1906', rights: `${boilerplate} Access restricted per donor agreement.` },
+    imageInfo: { width: 2000, height: 1500 },
+  });
+  assert.equal(r, null, 'genuine per-item restriction text surviving the boilerplate strip must still veto, even pre-1931');
+});
+
+test('buildRecord treats Template B ("may be protected by copyright law...") as boilerplate too, not a veto, for pre-1931 items', () => {
+  const templateB = 'This item may be protected by copyright law. Please cite DeGolyer Library, Southern Methodist University as the source of this file. For more information, contact degolyer@smu.edu.';
+  const r = buildRecord({
+    alias: 'wes',
+    itemId: 8,
+    itemInfo: { title: 'Old locomotive photo', date: '1909', rights: templateB },
+    imageInfo: { width: 2000, height: 1500 },
+  });
+  assert.ok(r, 'Template B is boilerplate hedge language, not a per-item veto; a pre-1931 item should pass via the date rule');
+});
