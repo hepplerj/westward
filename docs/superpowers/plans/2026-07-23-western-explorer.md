@@ -527,7 +527,7 @@ git commit -m "feat: Library of Congress harvest module"
 - Create: `scripts/sources/texas.mjs`, `tests/texas.test.mjs`, `tests/fixtures/texas-opensearch.xml`, `tests/fixtures/texas-manifest.json`
 
 **Interfaces:**
-- Consumes: fetcher (`fetchJson`, `fetchText`); `isRightsOpen` from `scripts/lib/rights.mjs`.
+- Consumes: fetcher (`fetchJson`, `fetchText`); `areRightsOpen(fields, dateText)` from `scripts/lib/rights.mjs` (every non-empty field must individually pass; empty set falls back to the ≤1930 date rule).
 - Produces: `extractArks(atomXml) → string[]` (ARK names like `metapth123456`, deduped, order preserved); `manifestToRecord(arkName, manifest) → Record|null`; `harvestTexas(fetcher, {target, log}) → Promise<Record[]>`. Ids `texas:*`, `source: "Portal to Texas History"`.
 
 - [ ] **Step 1: Capture real fixtures**
@@ -614,7 +614,7 @@ Expected: FAIL — `Cannot find module .../scripts/sources/texas.mjs`.
 // dimensions, and IIIF image service from the item's IIIF Presentation
 // manifest at {ark-url}/manifest/.
 
-import { isRightsOpen } from '../lib/rights.mjs';
+import { areRightsOpen } from '../lib/rights.mjs';
 
 const BASE = 'https://texashistory.unt.edu';
 const SEARCHES = [
@@ -661,8 +661,8 @@ export function manifestToRecord(arkName, manifest) {
   if (!title) return null;
 
   const date = metaValue(manifest, /^date/i);
-  const rights = [manifest.license, metaValue(manifest, /rights|license/i)].filter(Boolean).join(' ');
-  if (!isRightsOpen(rights, date)) return null;
+  // Each rights field must individually pass (areRightsOpen veto semantics).
+  if (!areRightsOpen([manifest.license, metaValue(manifest, /rights|license/i)], date)) return null;
 
   return {
     id: `texas:${arkName}`,
@@ -755,7 +755,7 @@ git commit -m "feat: Portal to Texas History harvest module"
 - Create: `scripts/sources/smu.mjs`, `tests/smu.test.mjs`, `tests/fixtures/smu-search.json`, `tests/fixtures/smu-iteminfo.json`, `tests/fixtures/smu-info.json`
 
 **Interfaces:**
-- Consumes: fetcher (`fetchJson`); `isRightsOpen` from `scripts/lib/rights.mjs`.
+- Consumes: fetcher (`fetchJson`); `areRightsOpen(fields, dateText)` from `scripts/lib/rights.mjs` (every non-empty field must individually pass; empty set falls back to the ≤1930 date rule).
 - Produces: `parseSearchItems(json) → {alias, itemId}[]`; `buildRecord({alias, itemId, itemInfo, imageInfo}) → Record|null`; `harvestSmu(fetcher, {target, log}) → Promise<Record[]>`. Ids `smu:{alias}:{itemId}`, `source: "SMU DeGolyer Library"`.
 
 - [ ] **Step 1: Capture real fixtures**
@@ -852,7 +852,7 @@ Expected: FAIL — `Cannot find module .../scripts/sources/smu.mjs`.
 // endpoint; per-item metadata via dmwebservices dmGetItemInfo; dimensions via
 // the IIIF Image API info.json. Collections: wes (U.S. West), rwy (Railroads).
 
-import { isRightsOpen } from '../lib/rights.mjs';
+import { areRightsOpen } from '../lib/rights.mjs';
 
 const BASE = 'https://digitalcollections.smu.edu';
 const SEARCHES = [
@@ -891,8 +891,12 @@ export function buildRecord({ alias, itemId, itemInfo, imageInfo }) {
   if (!title) return null;
 
   const date = field(itemInfo, 'date', 'dated');
-  const rights = field(itemInfo, 'rights', 'copyri', 'copyright', 'usage');
-  if (!isRightsOpen(rights, date)) return null;
+  // All present rights-ish fields must individually pass (veto semantics);
+  // CONTENTdm returns {} for empty fields, so keep only non-empty strings.
+  const rightsFields = ['rights', 'copyri', 'copyright', 'usage']
+    .map((name) => itemInfo?.[name])
+    .filter((v) => typeof v === 'string' && v.trim());
+  if (!areRightsOpen(rightsFields, date)) return null;
 
   // We link the 1024px-wide IIIF derivative, so store its dimensions.
   const width = Math.min(1024, srcWidth);
