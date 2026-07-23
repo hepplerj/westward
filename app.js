@@ -107,6 +107,7 @@ async function loadNextChunk() {
     state.nextChunk++;
     for (const record of records) addTile(record);
     updateGridHeight();
+    state.failedLoads = 0;
   } catch (err) {
     console.error('chunk load failed:', err);
     state.failedLoads = (state.failedLoads ?? 0) + 1;
