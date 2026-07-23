@@ -159,6 +159,8 @@ const lbMeta = lightbox.querySelector('.lb-meta');
 const lbSource = lightbox.querySelector('.lb-source');
 
 let lbIndex = -1;
+let lbOpener = null;
+const LB_FOCUSABLE = ['.lb-close', '.lb-prev', '.lb-next', '.lb-source'];
 
 function renderLightbox() {
   const record = state.displayList[lbIndex];
@@ -180,10 +182,13 @@ function closeLightbox() {
   document.body.classList.remove('lightbox-open');
   lbImg.src = '';
   lbIndex = -1;
+  lbOpener?.focus?.();
+  lbOpener = null;
 }
 
 openLightbox = function (displayIndex) {
   if (!state.displayList[displayIndex]) return;
+  lbOpener = document.activeElement;
   lbIndex = displayIndex;
   renderLightbox();
   lightbox.hidden = false;
@@ -203,6 +208,22 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeLightbox();
   else if (e.key === 'ArrowLeft') stepLightbox(-1);
   else if (e.key === 'ArrowRight') stepLightbox(1);
+  else if (e.key === 'Tab') {
+    // Driven explicitly (not left to native tab order) because the DOM
+    // order of these controls (close, prev, figure > figcaption > source,
+    // next) does not match this logical cycle — a boundary-only trap would
+    // let native tabbing reach .lb-source before .lb-next and skip it.
+    const els = LB_FOCUSABLE.map((sel) => lightbox.querySelector(sel));
+    const idx = els.indexOf(document.activeElement);
+    e.preventDefault();
+    if (idx === -1) {
+      els[0].focus();
+    } else if (e.shiftKey) {
+      els[(idx - 1 + els.length) % els.length].focus();
+    } else {
+      els[(idx + 1) % els.length].focus();
+    }
+  }
 });
 
 let touchStartX = null;
