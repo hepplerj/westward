@@ -38,6 +38,74 @@ test('manifestToRecord collects multiple discrete subject.* metadata entries', (
   assert.ok(r.subjects.includes('Agriculture - Domestic Animals - Cattle'));
 });
 
+// Synthetic manifest, kept by construction (date <= 1930, only the generic
+// terms-of-use license, no genuine rights label) so these tests assert the
+// full schema and multi-entry subject collection deterministically instead
+// of depending on whether the real committed fixture happens to pass the
+// rights rule.
+function syntheticManifest() {
+  return {
+    label: '[Photograph of Synthetic Ranch]',
+    license: 'https://texashistory.unt.edu/terms-of-use/',
+    metadata: [
+      { label: 'title', value: '[Photograph of Synthetic Ranch]' },
+      { label: 'creator', value: 'Doe, Jane' },
+      { label: 'date', value: '1925-06' },
+      { label: 'subject.UNTL-BS', value: 'Agriculture - Ranching - Ranches' },
+      { label: 'subject.UNTL-BS', value: 'Landscape and Nature - Plants' },
+      { label: 'subject.AAT', value: 'cattle ranches' },
+      { label: 'subject.AAT', value: 'windmills' },
+      { label: 'subject.KWD', value: 'hills' },
+    ],
+    sequences: [
+      {
+        canvases: [
+          {
+            width: 3000,
+            height: 1988,
+            images: [{ resource: { service: { '@id': 'https://texashistory.unt.edu/iiif/ark:/67531/metasynth1/m1/1' } } }],
+          },
+        ],
+      },
+    ],
+  };
+}
+
+test('manifestToRecord builds a full schema-valid record from a synthetic kept manifest', () => {
+  const arkName = 'metasynth1';
+  const r = manifestToRecord(arkName, syntheticManifest());
+  assert.ok(r !== null, 'synthetic manifest should be kept (date 1925 <= 1930, no closing rights)');
+  assert.equal(r.id, `texas:${arkName}`);
+  assert.equal(r.source, 'Portal to Texas History');
+  assert.equal(r.title, '[Photograph of Synthetic Ranch]');
+  assert.equal(r.date, '1925-06');
+  assert.equal(r.creator, 'Doe, Jane');
+  assert.equal(r.sourceUrl, `https://texashistory.unt.edu/ark:/67531/${arkName}/`);
+  assert.equal(r.imageUrl, 'https://texashistory.unt.edu/iiif/ark:/67531/metasynth1/m1/1/full/1024,/0/default.jpg');
+  assert.equal(r.thumbUrl, 'https://texashistory.unt.edu/iiif/ark:/67531/metasynth1/m1/1/full/640,/0/default.jpg');
+  assert.match(r.imageUrl, /\/full\/1024,\/0\/default\.jpg$/);
+  assert.match(r.thumbUrl, /\/full\/640,\/0\/default\.jpg$/);
+  assert.ok(Number.isInteger(r.width) && r.width > 0);
+  assert.ok(Number.isInteger(r.height) && r.height > 0);
+  assert.equal(r.width, 3000);
+  assert.equal(r.height, 1988);
+});
+
+test('manifestToRecord collects every discrete subject.* metadata entry (non-vacuous)', () => {
+  const r = manifestToRecord('metasynth1', syntheticManifest());
+  assert.ok(r !== null);
+  // Pins the exact collected list, in source order, across three distinct
+  // subject.* labels — a regression to a single-entry/pipe-split
+  // implementation would shrink this to one element and fail here.
+  assert.deepEqual(r.subjects, [
+    'Agriculture - Ranching - Ranches',
+    'Landscape and Nature - Plants',
+    'cattle ranches',
+    'windmills',
+    'hills',
+  ]);
+});
+
 test('manifestToRecord drops manifests with restrictive rights', () => {
   const closed = {
     label: 'A photo',
