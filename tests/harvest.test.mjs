@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dedupeRecords, validateRecord, interleave, chunk } from '../scripts/harvest.mjs';
+import { dedupeRecords, validateRecord, interleave, chunk, countBySource } from '../scripts/harvest.mjs';
 
 const rec = (id, extra = {}) => ({
   id, title: 't', date: '1900', creator: null,
@@ -41,4 +41,21 @@ test('chunk splits into fixed-size groups preserving order', () => {
   const chunks = chunk(records, 2);
   assert.deepEqual(chunks.map((c) => c.length), [2, 2, 1]);
   assert.equal(chunks[2][0].id, 'x:4');
+});
+
+test('countBySource counts records by source field', () => {
+  const a = rec('loc:1', { source: 'Library of Congress' });
+  const b = rec('loc:2', { source: 'Library of Congress' });
+  const c = rec('tx:1', { source: 'Portal to Texas History' });
+  const d = rec('smu:1', { source: 'SMU DeGolyer Library' });
+  const counts = countBySource([a, b, c, d]);
+  assert.deepEqual(counts, {
+    'Library of Congress': 2,
+    'Portal to Texas History': 1,
+    'SMU DeGolyer Library': 1,
+  });
+});
+
+test('countBySource returns empty object for empty array', () => {
+  assert.deepEqual(countBySource([]), {});
 });

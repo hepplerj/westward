@@ -70,6 +70,12 @@ export function chunk(records, size) {
   return out;
 }
 
+export function countBySource(records) {
+  const counts = {};
+  for (const r of records) counts[r.source] = (counts[r.source] ?? 0) + 1;
+  return counts;
+}
+
 async function main() {
   const quick = process.argv.includes('--quick');
   const targets = quick ? { loc: 40, texas: 20, smu: 12 } : { loc: 1000, texas: 350, smu: 150 };
@@ -103,11 +109,7 @@ async function main() {
     total: stream.length,
     chunkCount: chunks.length,
     chunkSize: CHUNK_SIZE,
-    sources: {
-      'Library of Congress': loc.length,
-      'Portal to Texas History': texas.length,
-      'SMU DeGolyer Library': smu.length,
-    },
+    sources: countBySource(stream),
   }, null, 2));
 
   console.error(`\nharvest complete: ${stream.length} records in ${chunks.length} chunks`);
