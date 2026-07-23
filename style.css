@@ -1,0 +1,67 @@
+:root {
+  --bg: #16120d;
+  --ink: #d8cbb8;
+  --ink-dim: #8a7c68;
+  --gutter: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  font: 15px/1.5 Georgia, 'Times New Roman', serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.site-title {
+  position: fixed;
+  top: 14px;
+  left: 18px;
+  z-index: 10;
+  margin: 0;
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  padding: 6px 10px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+#grid {
+  position: relative;
+  margin: 0 auto;
+  padding-top: var(--gutter);
+}
+
+.tile {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #221c14; /* placeholder while the image loads */
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+}
+
+.tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.tile img.loaded { opacity: 1; }
+
+.tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+#sentinel { height: 2px; }
+
+.lightbox { /* styled in Task 8 */ }
