@@ -129,14 +129,30 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(relayout, 150);
 });
 
+async function fetchIndex() {
+  const res = await fetch('data/index.json');
+  if (!res.ok) throw new Error(`index.json: HTTP ${res.status}`);
+  return res.json();
+}
+
 async function init() {
   const { count, columnWidth } = computeColumns();
   state.columnCount = count;
   state.columnWidth = columnWidth;
   state.columnHeights = new Array(count).fill(GUTTER);
 
-  const res = await fetch('data/index.json');
-  const index = await res.json();
+  let index;
+  try {
+    index = await fetchIndex();
+  } catch (err) {
+    console.error('bootstrap: index.json failed, retrying once:', err);
+    try {
+      index = await fetchIndex();
+    } catch (err2) {
+      console.error('bootstrap: index.json retry failed, giving up:', err2);
+      return;
+    }
+  }
   state.chunkCount = index.chunkCount;
 
   await loadNextChunk();

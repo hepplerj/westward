@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dedupeRecords, validateRecord, interleave, chunk, countBySource } from '../scripts/harvest.mjs';
+import { dedupeRecords, validateRecord, interleave, chunk, countBySource, staleChunkFiles } from '../scripts/harvest.mjs';
 
 const rec = (id, extra = {}) => ({
   id, title: 't', date: '1900', creator: null,
@@ -58,4 +58,15 @@ test('countBySource counts records by source field', () => {
 
 test('countBySource returns empty object for empty array', () => {
   assert.deepEqual(countBySource([]), {});
+});
+
+test('staleChunkFiles finds manifest chunks at or beyond keepCount, ignoring non-chunk files', () => {
+  const names = ['manifest-000.json', 'manifest-001.json', 'index.json', 'notes.txt'];
+  assert.deepEqual(staleChunkFiles(names, 1), ['manifest-001.json']);
+  assert.deepEqual(staleChunkFiles(names, 2), []);
+});
+
+test('staleChunkFiles matches only the strict manifest-NNN.json pattern', () => {
+  const names = ['manifest-000.json', 'manifest-010.json', 'manifest-abc.json', 'manifest-01.json', 'manifest-0001.json'];
+  assert.deepEqual(staleChunkFiles(names, 0), ['manifest-000.json', 'manifest-010.json']);
 });

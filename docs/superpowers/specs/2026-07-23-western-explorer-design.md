@@ -102,6 +102,14 @@ No API keys required for any PoC source.
   fall back to `r.jpg` for both when `v` is absent.
 - Rights: keep only records whose `rights_advisory`/`rights_information`
   contains "No known restrictions" (also pass `fa=access-restricted:false`).
+  As implemented, this is the same shared rule used by every source (see
+  `scripts/lib/rights.mjs`): each rights-labeled field is evaluated on its
+  own and a restrictive field vetoes the record even if another field is
+  open (per-field veto semantics), and — the fallback this bullet omits —
+  a record with no rights statement at all is still kept when its date is
+  1930 or earlier (public domain by date), not dropped outright. Do not
+  "fix" the code back to a strict "must contain the phrase" rule; the
+  fallback is intentional.
 - Subjects: LCSH `subject_headings` copied into `subjects`.
 - **Rate limit: 20 JSON requests/minute; blocked 1 hour if exceeded.**
   Throttle to ~1 request per 3.5s; handle 429/520/Cloudflare-HTML responses

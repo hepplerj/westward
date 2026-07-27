@@ -72,12 +72,15 @@ function plainLabel(label) {
 }
 
 // Rights fields for areRightsOpen: the manifest's top-level `license`, minus
-// the generic PTH terms-of-use boilerplate (treated as absent), plus any
-// metadata label that actually looks like a rights/license statement.
+// the generic PTH terms-of-use boilerplate (treated as absent), plus every
+// metadata entry whose label actually looks like a rights/license statement
+// (plural metaValues — a manifest can carry more than one rights-labeled
+// entry, and each one must individually pass; see areRightsOpen).
 function rightsFields(manifest) {
   const license = typeof manifest.license === 'string' ? manifest.license : '';
   const genuineLicense = GENERIC_LICENSE_RE.test(license) ? null : license;
-  return [genuineLicense, metaValue(manifest, /rights|license/i)];
+  const metaRights = metaValues(manifest, /rights|license/i).filter((v) => !GENERIC_LICENSE_RE.test(v));
+  return [genuineLicense, ...metaRights];
 }
 
 export function manifestToRecord(arkName, manifest) {

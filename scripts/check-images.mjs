@@ -1,11 +1,18 @@
 // Samples harvested records and verifies their imageUrls actually serve
 // images. Usage: node scripts/check-images.mjs [sampleSize]
 
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 
 const SAMPLE = Number(process.argv[2]) || 30;
 
-const chunkFiles = (await readdir('data')).filter((f) => f.startsWith('manifest-')).sort();
+// Derive the chunk file list from index.json's chunkCount rather than
+// globbing data/ for manifest-* files, so a leftover chunk from a previous,
+// larger harvest (see harvest.mjs's stale-chunk cleanup) can't be sampled.
+const index = JSON.parse(await readFile('data/index.json', 'utf8'));
+const chunkFiles = Array.from(
+  { length: index.chunkCount },
+  (_, i) => `manifest-${String(i).padStart(3, '0')}.json`,
+);
 const records = [];
 for (const f of chunkFiles) records.push(...JSON.parse(await readFile(`data/${f}`, 'utf8')));
 

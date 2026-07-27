@@ -2,7 +2,7 @@
 // interleaves for visual variety, chunks, and writes data/.
 // Usage: node scripts/harvest.mjs [--quick]
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises';
 import { createFetcher } from './lib/fetch-util.mjs';
 import { harvestLoc } from './sources/loc.mjs';
 import { harvestTexas } from './sources/texas.mjs';
@@ -76,6 +76,18 @@ export function countBySource(records) {
   return counts;
 }
 
+const CHUNK_NAME_RE = /^manifest-(\d{3})\.json$/;
+
+// Chunk filenames from a previous, larger harvest that this run no longer
+// writes (e.g. harvest:quick after a full harvest) — anything matching
+// manifest-NNN.json whose index is >= the number of chunks we just wrote.
+export function staleChunkFiles(existingNames, keepCount) {
+  return existingNames.filter((name) => {
+    const m = CHUNK_NAME_RE.exec(name);
+    return m && Number(m[1]) >= keepCount;
+  });
+}
+
 async function main() {
   const quick = process.argv.includes('--quick');
   const targets = quick ? { loc: 40, texas: 20, smu: 12 } : { loc: 1000, texas: 350, smu: 150 };
@@ -104,6 +116,14 @@ async function main() {
   await Promise.all(chunks.map((c, i) =>
     writeFile(`data/manifest-${String(i).padStart(3, '0')}.json`, JSON.stringify(c)),
   ));
+
+  // Remove chunk files left over from a previous, larger harvest (e.g.
+  // harvest:quick run after a full harvest) so stale data can't be sampled
+  // by check-images or shipped in a deploy.
+  const stale = staleChunkFiles(await readdir('data'), chunks.length);
+  await Promise.all(stale.map((name) => unlink(`data/${name}`)));
+  if (stale.length) log(`removed ${stale.length} stale manifest chunk(s): ${stale.join(', ')}`);
+
   await writeFile('data/index.json', JSON.stringify({
     generated: new Date().toISOString(),
     total: stream.length,

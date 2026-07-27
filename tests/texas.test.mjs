@@ -119,6 +119,23 @@ test('manifestToRecord tolerates a missing canvas', () => {
   assert.equal(manifestToRecord('x', { label: 'Empty', sequences: [] }), null);
 });
 
+test('manifestToRecord vetoes on a second, restrictive rights-labeled metadata entry', () => {
+  const manifest = {
+    label: 'A photo',
+    metadata: [
+      { label: 'license', value: 'Public domain' },
+      { label: 'rights', value: 'Restricted: contact the partner institution.' },
+      { label: 'date', value: '1920' },
+    ],
+    sequences: [{ canvases: [{ width: 1000, height: 800, images: [{ resource: { service: { '@id': 'https://texashistory.unt.edu/iiif/ark:/67531/x/m1/1' } } }] }] }],
+  };
+  assert.equal(
+    manifestToRecord('x', manifest),
+    null,
+    'a restrictive second rights-labeled entry must veto even though the first entry is permissive',
+  );
+});
+
 test('manifestToRecord treats the generic PTH terms-of-use license as absent rights, falling back to the date rule', () => {
   const makeManifest = (date) => ({
     label: 'A photo',
