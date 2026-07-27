@@ -10,7 +10,7 @@ Netlify, `python3 -m http.server`).
 
 ## Refreshing the data
 
-    npm run harvest        # full harvest (~1,000–1,500 (rerun to refresh; counts vary with source keep-rates) records, <30 min)
+    npm run harvest        # full harvest (~1,000–1,500 records depending on source keep-rates, <30 min)
     npm run harvest:quick  # small harvest for development
     npm run check-images   # spot-check that harvested image URLs still serve
 
