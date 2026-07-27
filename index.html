@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Westward — photographs of the American West</title>
 <meta name="description" content="An endless scroll of public-domain photographs of the American West, drawn from the Library of Congress, the Portal to Texas History, and SMU's DeGolyer Library.">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <header class="topbar" id="topbar">
@@ -42,8 +42,18 @@
     at Southern Methodist University. Every image is public domain or carries
     no known restrictions, is served by its holding institution, and links
     back to its source record.</p>
+    <section class="colophon">
+      <h3>Colophon</h3>
+      <p>Westward is a static site: no framework, no build step, no accounts,
+      no cookies. A small Node pipeline queries each institution's open API —
+      throttled to published limits — keeps only openly licensed items, and
+      writes flat JSON; the photographs themselves are never rehosted. Set in
+      Georgia on a prairie-night palette.
+      <a href="https://github.com/hepplerj/westward" target="_blank" rel="noopener">Source on GitHub</a>.
+      Built in collaboration with Claude.</p>
+    </section>
   </div>
 </div>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
