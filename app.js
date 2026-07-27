@@ -180,7 +180,22 @@ const LB_FOCUSABLE = ['.lb-close', '.lb-prev', '.lb-next', '.lb-source'];
 
 function renderLightbox() {
   const record = state.displayList[lbIndex];
-  lbImg.src = record.imageUrl;
+  // Blur-up: the grid already fetched thumbUrl, so it paints instantly;
+  // swap in the full derivative once it decodes. If the full image fails,
+  // stay on the sharp thumb rather than showing a broken image.
+  lbImg.classList.add('lb-loading');
+  lbImg.src = record.thumbUrl;
+  const full = new Image();
+  full.onload = () => {
+    if (state.displayList[lbIndex] === record && !lightbox.hidden) {
+      lbImg.src = record.imageUrl;
+      lbImg.classList.remove('lb-loading');
+    }
+  };
+  full.onerror = () => {
+    if (state.displayList[lbIndex] === record) lbImg.classList.remove('lb-loading');
+  };
+  full.src = record.imageUrl;
   lbImg.alt = record.title;
   lbTitle.textContent = record.title;
   lbMeta.textContent = [record.date, record.creator, record.source].filter(Boolean).join(' · ');
