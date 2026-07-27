@@ -1,6 +1,6 @@
 # Westward
 
-*(repo: western-explorer)*
+Live at [westward.jasonheppler.org](https://westward.jasonheppler.org).
 
 An endless, full-screen scroll of public-domain photographs of the American
 West — homesteading, ranching, frontier life — drawn from the Library of
