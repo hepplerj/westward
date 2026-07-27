@@ -7,6 +7,11 @@
 
 * { box-sizing: border-box; }
 
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
 html { background: var(--bg); }
 
 body {
