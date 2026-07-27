@@ -251,3 +251,60 @@ lightbox.addEventListener('touchend', (e) => {
   if (Math.abs(dx) > 60) stepLightbox(dx > 0 ? -1 : 1);
   touchStartX = null;
 }, { passive: true });
+
+// ---------------------------------------------------------------- topbar
+
+const topbar = document.getElementById('topbar');
+let lastScrollY = window.scrollY;
+
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  // Small hysteresis so the bar doesn't flicker on tiny scroll jitters.
+  if (y > lastScrollY + 8 && y > 80) topbar.classList.add('hidden');
+  else if (y < lastScrollY - 8) topbar.classList.remove('hidden');
+  lastScrollY = y;
+}, { passive: true });
+
+// ---------------------------------------------------------------- about
+
+const about = document.getElementById('about');
+const ABOUT_FOCUSABLE = ['.about-close', '.about-panel a'];
+let aboutOpener = null;
+
+function openAbout() {
+  aboutOpener = document.activeElement;
+  about.hidden = false;
+  document.body.classList.add('about-open-scroll-lock');
+  about.querySelector('.about-close').focus();
+}
+
+function closeAbout() {
+  about.hidden = true;
+  document.body.classList.remove('about-open-scroll-lock');
+  if (aboutOpener?.isConnected) aboutOpener.focus();
+  aboutOpener = null;
+}
+
+document.querySelector('.about-open').addEventListener('click', openAbout);
+about.querySelector('.about-close').addEventListener('click', closeAbout);
+about.addEventListener('click', (e) => {
+  if (e.target === about) closeAbout(); // backdrop only
+});
+
+document.addEventListener('keydown', (e) => {
+  if (about.hidden) return;
+  if (e.key === 'Escape') {
+    closeAbout();
+  } else if (e.key === 'Tab') {
+    const els = ABOUT_FOCUSABLE.flatMap((sel) => [...about.querySelectorAll(sel)]);
+    const idx = els.indexOf(document.activeElement);
+    e.preventDefault();
+    if (idx === -1) {
+      els[e.shiftKey ? els.length - 1 : 0].focus();
+    } else if (e.shiftKey) {
+      els[(idx - 1 + els.length) % els.length].focus();
+    } else {
+      els[(idx + 1) % els.length].focus();
+    }
+  }
+});

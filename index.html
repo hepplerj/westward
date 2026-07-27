@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Western Explorer</title>
+<title>Westward — photographs of the American West</title>
 <meta name="description" content="An endless scroll of public-domain photographs of the American West, drawn from the Library of Congress, the Portal to Texas History, and SMU's DeGolyer Library.">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-<h1 class="site-title">Western&nbsp;Explorer</h1>
+<header class="topbar" id="topbar">
+  <h1 class="topbar-title">Westward</h1>
+  <button class="about-open" type="button" aria-haspopup="dialog">About</button>
+</header>
 <main id="grid" aria-label="Photographs of the American West"></main>
 <div id="sentinel" aria-hidden="true"></div>
 <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photograph detail">
@@ -24,6 +27,23 @@
   </figure>
   <button class="lb-next" type="button" aria-label="Next photograph">&#8250;</button>
 </div>
-<script src="app.js"></script>
+<div id="about" class="about" hidden role="dialog" aria-modal="true" aria-label="About Westward">
+  <div class="about-panel">
+    <button class="about-close" type="button" aria-label="Close">&times;</button>
+    <h2>Westward</h2>
+    <p>An endless scroll through the American West — homesteading, ranching,
+    and frontier life in public-domain photographs from open
+    cultural-heritage collections.</p>
+    <p>Photographs come from the
+    <a href="https://www.loc.gov/" target="_blank" rel="noopener">Library of Congress</a>,
+    the <a href="https://texashistory.unt.edu/" target="_blank" rel="noopener">Portal to Texas History</a>
+    at the University of North Texas, and the
+    <a href="https://www.smu.edu/libraries/degolyer" target="_blank" rel="noopener">DeGolyer Library</a>
+    at Southern Methodist University. Every image is public domain or carries
+    no known restrictions, is served by its holding institution, and links
+    back to its source record.</p>
+  </div>
+</div>
+<script src="app.js?v=2"></script>
 </body>
 </html>

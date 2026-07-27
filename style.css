@@ -16,26 +16,51 @@ body {
   background: var(--bg);
 }
 
-.site-title {
+.topbar {
   position: fixed;
-  top: 14px;
-  left: 18px;
-  z-index: 10;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 46px;
+  padding: 0 18px;
+  background: color-mix(in srgb, var(--bg) 65%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.3s ease;
+}
+
+.topbar.hidden { transform: translateY(-100%); }
+
+.topbar-title {
   margin: 0;
   font-size: 15px;
   font-weight: normal;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink);
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
-  padding: 6px 10px;
-  border-radius: 3px;
-  pointer-events: none;
 }
+
+.about-open {
+  background: none;
+  border: 0;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+.about-open:hover, .about-open:focus-visible { color: var(--ink); }
 
 #grid {
   position: relative;
-  margin: 0 auto;
+  margin: 46px auto 0;
   padding-top: var(--gutter);
 }
 
@@ -132,3 +157,58 @@ body {
 .lb-next { right: 6px; top: 50%; transform: translateY(-50%); }
 
 body.lightbox-open { overflow: hidden; }
+
+/* ---------------------------------------------------------------- about */
+
+.about {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 8, 5, 0.9);
+}
+
+.about[hidden] { display: none; }
+
+.about-panel {
+  position: relative;
+  max-width: 60ch;
+  margin: 20px;
+  padding: 32px 36px;
+  background: #1e1812;
+  border-radius: 4px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  line-height: 1.65;
+}
+
+.about-panel h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: normal;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.about-panel p { margin: 0 0 12px; }
+.about-panel p:last-child { margin-bottom: 0; }
+
+.about-panel a { color: var(--ink); text-decoration: underline; }
+.about-panel a:hover { color: #fff; }
+
+.about-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: none;
+  border: 0;
+  color: var(--ink-dim);
+  font: 26px/1 Georgia, serif;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.about-close:hover, .about-close:focus-visible { color: var(--ink); }
+
+body.about-open-scroll-lock { overflow: hidden; }
