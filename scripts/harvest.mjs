@@ -3,10 +3,12 @@
 // Usage: node scripts/harvest.mjs [--quick]
 
 import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises';
+import { loadEnv } from './lib/env.mjs';
 import { createFetcher } from './lib/fetch-util.mjs';
 import { harvestLoc } from './sources/loc.mjs';
 import { harvestTexas } from './sources/texas.mjs';
 import { harvestSmu } from './sources/smu.mjs';
+import { harvestDpla } from './sources/dpla.mjs';
 
 const CHUNK_SIZE = 100;
 
@@ -89,25 +91,37 @@ export function staleChunkFiles(existingNames, keepCount) {
 }
 
 async function main() {
+  loadEnv(); // populates process.env.DPLA_API_KEY from .env, if present; never overrides an already-set var
+
   const quick = process.argv.includes('--quick');
-  const targets = quick ? { loc: 40, texas: 20, smu: 12 } : { loc: 1000, texas: 350, smu: 150 };
+  const targets = quick
+    ? { loc: 40, texas: 20, smu: 12, dpla: 15 }
+    : { loc: 1000, texas: 350, smu: 150, dpla: 300 };
   const log = (msg) => console.error(msg);
 
   const locFetcher = createFetcher({ minIntervalMs: 3500 }); // LOC hard limit: 20/min
   const fastFetcher = createFetcher({ minIntervalMs: 350 });
 
-  const [loc, texas, smu] = await Promise.all([
+  // harvestDpla throws synchronously-in-a-promise when DPLA_API_KEY is unset
+  // (its only top-level throw path — everything else is caught per-request
+  // inside the module, same as the other three sources). Caught here so a
+  // missing key skips DPLA without failing the whole harvest.
+  const dplaPromise = harvestDpla(createFetcher({ minIntervalMs: 350 }), { target: targets.dpla, log })
+    .catch(() => { log('dpla: skipped (no DPLA_API_KEY)'); return []; });
+
+  const [loc, texas, smu, dpla] = await Promise.all([
     harvestLoc(locFetcher, { target: targets.loc, log }),
     harvestTexas(fastFetcher, { target: targets.texas, log }),
     harvestSmu(createFetcher({ minIntervalMs: 350 }), { target: targets.smu, log }),
+    dplaPromise,
   ]);
 
-  const all = dedupeRecords([...loc, ...texas, ...smu]);
+  const all = dedupeRecords([...loc, ...texas, ...smu, ...dpla]);
   const invalid = all.map((r) => [r, validateRecord(r)]).filter(([, err]) => err);
   for (const [r, err] of invalid) log(`invalid record dropped (${err}): ${r.id}`);
   const valid = all.filter((r) => !validateRecord(r));
 
-  const stream = interleave([shuffle(loc), shuffle(texas), shuffle(smu)].map(
+  const stream = interleave([shuffle(loc), shuffle(texas), shuffle(smu), shuffle(dpla)].map(
     (list) => list.filter((r) => valid.includes(r)),
   ));
 
@@ -133,7 +147,7 @@ async function main() {
   }, null, 2));
 
   console.error(`\nharvest complete: ${stream.length} records in ${chunks.length} chunks`);
-  console.error(`  LOC ${loc.length} / Texas ${texas.length} / SMU ${smu.length}; dropped ${invalid.length} invalid`);
+  console.error(`  LOC ${loc.length} / Texas ${texas.length} / SMU ${smu.length} / DPLA ${dpla.length}; dropped ${invalid.length} invalid`);
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {

@@ -4,7 +4,9 @@ Live at [westward.jasonheppler.org](https://westward.jasonheppler.org).
 
 An endless, full-screen scroll of public-domain photographs of the American
 West — homesteading, ranching, frontier life — drawn from the Library of
-Congress, the Portal to Texas History, and SMU's DeGolyer Library.
+Congress, the Portal to Texas History, SMU's DeGolyer Library, and the
+Digital Public Library of America (Denver Public Library and partners via
+the Plains to Peaks Collective).
 
 Static site: `index.html` + `style.css` + `app.js` + `data/`. No build step,
 no dependencies. Deploy by serving the repository root (GitHub Pages,
@@ -20,6 +22,16 @@ Images are hotlinked from the holding institutions and never rehosted.
 Only public-domain / no-known-restrictions items are kept (see
 `scripts/lib/rights.mjs`). The harvester throttles to each institution's
 published limits — do not lower the LOC interval below 3.5 s.
+
+The DPLA source needs an API key (self-service at
+[pro.dp.la/developers/policies#api-key](https://pro.dp.la/developers/policies#api-key)).
+Create a `.env` file in the repository root with:
+
+    DPLA_API_KEY=your-key-here
+
+`.env` is gitignored and never committed. If `DPLA_API_KEY` is unset, the
+harvester logs `dpla: skipped (no DPLA_API_KEY)` and continues with the
+other three sources — a missing key is not an error.
 
 ## Design docs
 
