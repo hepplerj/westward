@@ -1,11 +1,11 @@
 {
-  "generated": "2026-07-23T19:21:32.105Z",
-  "total": 72,
-  "chunkCount": 1,
+  "generated": "2026-07-27T14:22:25.538Z",
+  "total": 1063,
+  "chunkCount": 11,
   "chunkSize": 100,
   "sources": {
-    "Library of Congress": 40,
-    "Portal to Texas History": 20,
-    "SMU DeGolyer Library": 12
+    "Library of Congress": 741,
+    "Portal to Texas History": 208,
+    "SMU DeGolyer Library": 114
   }
 }
