@@ -23,6 +23,19 @@ const QUERIES = [
   ['photos-cattle-drive', 'https://www.loc.gov/photos/?q=cattle+drive&fa=online-format:image&fo=json', 50],
   ['photos-chuck-wagon', 'https://www.loc.gov/photos/?q=chuck+wagon&fa=online-format:image&fo=json', 25],
   ['photos-prairie', 'https://www.loc.gov/photos/?q=prairie+settlers&fa=online-format:image&fo=json', 50],
+  // Source-expansion round (2026-07-27): stereographs + more western themes.
+  ['stereo-cowboy', 'https://www.loc.gov/collections/stereograph-cards/?q=cowboy&fo=json', 75],
+  ['stereo-ranch', 'https://www.loc.gov/collections/stereograph-cards/?q=ranch&fo=json', 75],
+  ['stereo-mining', 'https://www.loc.gov/collections/stereograph-cards/?q=mining+camp&fo=json', 50],
+  ['detroit-california', 'https://www.loc.gov/collections/detroit-publishing-company/?q=california&fo=json', 75],
+  ['detroit-new-mexico', 'https://www.loc.gov/collections/detroit-publishing-company/?q=new+mexico&fo=json', 50],
+  ['detroit-texas', 'https://www.loc.gov/collections/detroit-publishing-company/?q=texas&fo=json', 50],
+  ['fsa-sheep', 'https://www.loc.gov/collections/fsa-owi-black-and-white-negatives/?q=sheep+herder&fa=access-restricted:false&fo=json', 50],
+  ['fsa-rodeo', 'https://www.loc.gov/collections/fsa-owi-black-and-white-negatives/?q=rodeo&fa=access-restricted:false&fo=json', 50],
+  ['fsa-dust', 'https://www.loc.gov/collections/fsa-owi-black-and-white-negatives/?q=dust+storm&fa=access-restricted:false&fo=json', 50],
+  ['panoramic-harvest', 'https://www.loc.gov/collections/panoramic-photographs/?q=harvest&fo=json', 40],
+  ['photos-covered-wagon', 'https://www.loc.gov/photos/?q=covered+wagon&fa=online-format:image&fo=json', 40],
+  ['photos-gold-mining', 'https://www.loc.gov/photos/?q=gold+mining&fa=online-format:image&fo=json', 40],
 ];
 
 export function parseImageUrl(raw) {
