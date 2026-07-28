@@ -18,11 +18,18 @@ import { areRightsOpen } from '../lib/rights.mjs';
 
 const BASE = 'https://texashistory.unt.edu';
 const SEARCHES = [
-  ['cattle ranch', 120],
-  ['homestead', 80],
+  ['cattle ranch', 140],
+  ['homestead', 160],
   ['windmill farm', 60],
   ['cattle drive', 50],
-  ['railroad depot', 40],
+  ['railroad depot', 80],
+  // Source-expansion round (2026-07-27): homestead was the only query to
+  // hit quota, so its quota doubles; the rest of the growth comes from new
+  // terms (keep-rates, not quotas, limited the other original queries).
+  ['stockyards', 60],
+  ['chuck wagon', 40],
+  ['prairie', 60],
+  ['wagon road', 40],
 ];
 
 const GENERIC_LICENSE_RE = /texashistory\.unt\.edu\/terms-of-use/i;
@@ -125,7 +132,7 @@ export async function harvestTexas(fetcher, { target = 350, log = console.error 
   for (const [query, quota] of SEARCHES) {
     if (records.length >= target) break;
     let kept = 0;
-    for (let page = 1; kept < quota && page <= 8; page++) {
+    for (let page = 1; kept < quota && page <= 12; page++) {
       let arks;
       try {
         arks = extractArks(await fetcher.fetchText(pageUrl(query, page)));

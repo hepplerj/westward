@@ -43,6 +43,9 @@ const SEARCHES = [
   ['wes', 'ranch', 40],
   ['wes', 'cattle', 30],
   ['rwy', 'railroad', 40],
+  // Source-expansion round (2026-07-27).
+  ['wes', 'wagon', 30],
+  ['wes', 'mining', 30],
 ];
 
 // Known site-wide DeGolyer citation-disclaimer sentences, matched and

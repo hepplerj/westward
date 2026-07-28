@@ -1,16 +1,22 @@
 {
-  "generated": "2026-07-28T16:15:25.516Z",
-  "total": 1898,
-  "chunkCount": 19,
+  "generated": "2026-07-28T19:19:25.285Z",
+  "total": 2062,
+  "chunkCount": 21,
   "chunkSize": 100,
   "sources": {
-    "Library of Congress": 1088,
+    "Library of Congress": 1169,
     "Portal to Texas History": 454,
     "SMU DeGolyer Library": 155,
     "University of Wyoming, American Heritage Center": 109,
-    "Wyoming State Archives": 45,
-    "University of Colorado Boulder University Libraries": 24,
+    "Smithsonian Institution": 10,
+    "Cooper Hewitt, Smithsonian Design Museum": 19,
+    "Smithsonian American Art Museum": 22,
     "Denver Public Library": 22,
+    "University of Colorado Boulder University Libraries": 24,
+    "Wyoming State Archives": 45,
+    "National Portrait Gallery": 18,
+    "Smithsonian Institution Archives": 9,
+    "National Museum of American History": 5,
     "Pikes Peak Library District": 1
   }
 }

@@ -10,6 +10,7 @@ import { harvestLoc } from './sources/loc.mjs';
 import { harvestTexas } from './sources/texas.mjs';
 import { harvestSmu } from './sources/smu.mjs';
 import { harvestDpla } from './sources/dpla.mjs';
+import { harvestSmithsonian, createSmithsonianFetcher } from './sources/smithsonian.mjs';
 
 const CHUNK_SIZE = 100;
 
@@ -96,8 +97,8 @@ async function main() {
 
   const quick = process.argv.includes('--quick');
   const targets = quick
-    ? { loc: 40, texas: 20, smu: 12, dpla: 15 }
-    : { loc: 1600, texas: 550, smu: 200, dpla: 300 };
+    ? { loc: 40, texas: 20, smu: 12, dpla: 15, smithsonian: 10 }
+    : { loc: 1600, texas: 550, smu: 200, dpla: 300, smithsonian: 120 };
   const log = (msg) => console.error(msg);
 
   const locFetcher = createFetcher({ minIntervalMs: 3500 }); // LOC hard limit: 20/min
@@ -109,14 +110,20 @@ async function main() {
     ? harvestDpla(createFetcher({ minIntervalMs: 350 }), { target: targets.dpla, log })
     : (log('dpla: skipped (no DPLA_API_KEY)'), Promise.resolve([]));
 
-  const [loc, texas, smu, dpla] = await Promise.all([
+  // Same explicit pre-check style for SMITHSONIAN_API_KEY (see dpla above).
+  const smithsonianPromise = process.env.SMITHSONIAN_API_KEY
+    ? harvestSmithsonian(createSmithsonianFetcher(350), { target: targets.smithsonian, log })
+    : (log('smithsonian: skipped (no SMITHSONIAN_API_KEY)'), Promise.resolve([]));
+
+  const [loc, texas, smu, dpla, smithsonian] = await Promise.all([
     harvestLoc(locFetcher, { target: targets.loc, log }),
     harvestTexas(fastFetcher, { target: targets.texas, log }),
     harvestSmu(createFetcher({ minIntervalMs: 350 }), { target: targets.smu, log }),
     dplaPromise,
+    smithsonianPromise,
   ]);
 
-  const all = dedupeRecords([...loc, ...texas, ...smu, ...dpla]);
+  const all = dedupeRecords([...loc, ...texas, ...smu, ...dpla, ...smithsonian]);
   const invalid = all.map((r) => [r, validateRecord(r)]).filter(([, err]) => err);
   for (const [r, err] of invalid) log(`invalid record dropped (${err}): ${r.id}`);
   const valid = all.filter((r) => !validateRecord(r));
@@ -125,7 +132,7 @@ async function main() {
   if (dropped.length) log(triageSummary(dropped));
   const keptSet = new Set(kept);
 
-  const stream = interleave([shuffle(loc), shuffle(texas), shuffle(smu), shuffle(dpla)].map(
+  const stream = interleave([shuffle(loc), shuffle(texas), shuffle(smu), shuffle(dpla), shuffle(smithsonian)].map(
     (list) => list.filter((r) => keptSet.has(r)),
   ));
 
@@ -151,7 +158,7 @@ async function main() {
   }, null, 2));
 
   console.error(`\nharvest complete: ${stream.length} records in ${chunks.length} chunks`);
-  console.error(`  LOC ${loc.length} / Texas ${texas.length} / SMU ${smu.length} / DPLA ${dpla.length}; dropped ${invalid.length} invalid`);
+  console.error(`  LOC ${loc.length} / Texas ${texas.length} / SMU ${smu.length} / DPLA ${dpla.length} / Smithsonian ${smithsonian.length}; dropped ${invalid.length} invalid`);
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
