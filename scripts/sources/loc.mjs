@@ -36,6 +36,68 @@ const QUERIES = [
   ['panoramic-harvest', 'https://www.loc.gov/collections/panoramic-photographs/?q=harvest&fo=json', 40],
   ['photos-covered-wagon', 'https://www.loc.gov/photos/?q=covered+wagon&fa=online-format:image&fo=json', 40],
   ['photos-gold-mining', 'https://www.loc.gov/photos/?q=gold+mining&fa=online-format:image&fo=json', 40],
+  // Vocabulary-expansion round (2026-07-28): Native nations. Modern names +
+  // LCSH umbrella; no ceremony-targeted queries (owner's editorial policy).
+  ['photos-indians-na', 'https://www.loc.gov/photos/?q=Indians+of+North+America&fa=online-format:image&fo=json', 100],
+  ['photos-sioux', 'https://www.loc.gov/photos/?q=Sioux&fa=online-format:image&fo=json', 40],
+  ['photos-lakota', 'https://www.loc.gov/photos/?q=Lakota&fa=online-format:image&fo=json', 25],
+  ['photos-cheyenne', 'https://www.loc.gov/photos/?q=Cheyenne&fa=online-format:image&fo=json', 30],
+  ['photos-comanche', 'https://www.loc.gov/photos/?q=Comanche&fa=online-format:image&fo=json', 25],
+  ['photos-apache', 'https://www.loc.gov/photos/?q=Apache&fa=online-format:image&fo=json', 35],
+  ['photos-navajo', 'https://www.loc.gov/photos/?q=Navajo&fa=online-format:image&fo=json', 40],
+  ['photos-hopi', 'https://www.loc.gov/photos/?q=Hopi&fa=online-format:image&fo=json', 30],
+  ['photos-pueblo', 'https://www.loc.gov/photos/?q=Pueblo&fa=online-format:image&fo=json', 40],
+  ['photos-crow', 'https://www.loc.gov/photos/?q=Crow+Indians&fa=online-format:image&fo=json', 25],
+  ['photos-blackfeet', 'https://www.loc.gov/photos/?q=Blackfeet&fa=online-format:image&fo=json', 25],
+  ['photos-ute', 'https://www.loc.gov/photos/?q=Ute+Indians&fa=online-format:image&fo=json', 20],
+  ['photos-shoshone', 'https://www.loc.gov/photos/?q=Shoshone&fa=online-format:image&fo=json', 25],
+  ['photos-arapaho', 'https://www.loc.gov/photos/?q=Arapaho&fa=online-format:image&fo=json', 20],
+  ['photos-kiowa', 'https://www.loc.gov/photos/?q=Kiowa&fa=online-format:image&fo=json', 20],
+  ['photos-osage', 'https://www.loc.gov/photos/?q=Osage&fa=online-format:image&fo=json', 20],
+  ['photos-nez-perce', 'https://www.loc.gov/photos/?q=Nez+Perce&fa=online-format:image&fo=json', 25],
+  ['photos-pawnee', 'https://www.loc.gov/photos/?q=Pawnee&fa=online-format:image&fo=json', 20],
+  // African American West: proper nouns over period vocabulary.
+  ['photos-buffalo-soldiers', 'https://www.loc.gov/photos/?q=Buffalo+Soldiers&fa=online-format:image&fo=json', 30],
+  ['photos-exodusters', 'https://www.loc.gov/photos/?q=Exodusters&fa=online-format:image&fo=json', 15],
+  ['photos-nicodemus', 'https://www.loc.gov/photos/?q=Nicodemus+Kansas&fa=online-format:image&fo=json', 15],
+  // Latino / Hispanic / Mexican West.
+  ['photos-vaquero', 'https://www.loc.gov/photos/?q=vaquero&fa=online-format:image&fo=json', 25],
+  ['photos-adobe', 'https://www.loc.gov/photos/?q=adobe&fa=online-format:image&fo=json', 40],
+  ['photos-acequia', 'https://www.loc.gov/photos/?q=acequia&fa=online-format:image&fo=json', 15],
+  ['photos-rio-grande', 'https://www.loc.gov/photos/?q=Rio+Grande&fa=online-format:image&fo=json', 30],
+  ['detroit-mission', 'https://www.loc.gov/collections/detroit-publishing-company/?q=mission&fo=json', 40],
+  // Chinese railroad labor (Central Pacific construction era).
+  ['photos-central-pacific', 'https://www.loc.gov/photos/?q=Central+Pacific&fa=online-format:image&fo=json', 20],
+  // Work, water, settlement themes.
+  ['photos-irrigation', 'https://www.loc.gov/photos/?q=irrigation&fa=online-format:image&fo=json', 40],
+  ['photos-windmill', 'https://www.loc.gov/photos/?q=windmill&fa=online-format:image&fo=json', 30],
+  ['photos-land-office', 'https://www.loc.gov/photos/?q=land+office&fa=online-format:image&fo=json', 20],
+  ['photos-roundup', 'https://www.loc.gov/photos/?q=roundup&fa=online-format:image&fo=json', 25],
+  ['photos-sheep-shearing', 'https://www.loc.gov/photos/?q=sheep+shearing&fa=online-format:image&fo=json', 20],
+  ['photos-threshing', 'https://www.loc.gov/photos/?q=threshing&fa=online-format:image&fo=json', 25],
+  ['photos-grain-elevator', 'https://www.loc.gov/photos/?q=grain+elevator&fa=online-format:image&fo=json', 20],
+  ['photos-stagecoach', 'https://www.loc.gov/photos/?q=stagecoach&fa=online-format:image&fo=json', 30],
+  ['photos-wagon-train', 'https://www.loc.gov/photos/?q=wagon+train&fa=online-format:image&fo=json', 25],
+  ['photos-dugout', 'https://www.loc.gov/photos/?q=dugout+house&fa=online-format:image&fo=json', 20],
+  // Fauna & spectacle: "bison" not "buffalo" (Buffalo, N.Y.); "wild horses"
+  // not "mustang" (the P-51 aircraft photographs).
+  ['photos-bison', 'https://www.loc.gov/photos/?q=bison&fa=online-format:image&fo=json', 25],
+  ['photos-longhorn', 'https://www.loc.gov/photos/?q=longhorn&fa=online-format:image&fo=json', 20],
+  ['photos-wild-horses', 'https://www.loc.gov/photos/?q=wild+horses&fa=online-format:image&fo=json', 20],
+  ['photos-rodeo', 'https://www.loc.gov/photos/?q=rodeo&fa=online-format:image&fo=json', 30],
+  ['photos-frontier-days', 'https://www.loc.gov/photos/?q=Frontier+Days&fa=online-format:image&fo=json', 20],
+  // State scopes on thematically strong collections (see triage discussion:
+  // bare state queries are thematically indiscriminate; scoped ones aren't).
+  ['fsa-new-mexico', 'https://www.loc.gov/collections/fsa-owi-black-and-white-negatives/?fa=location:new+mexico&fo=json', 40],
+  ['fsa-arizona', 'https://www.loc.gov/collections/fsa-owi-black-and-white-negatives/?fa=location:arizona&fo=json', 30],
+  ['detroit-utah', 'https://www.loc.gov/collections/detroit-publishing-company/?q=utah&fo=json', 40],
+  ['detroit-arizona', 'https://www.loc.gov/collections/detroit-publishing-company/?q=arizona&fo=json', 40],
+  ['detroit-idaho', 'https://www.loc.gov/collections/detroit-publishing-company/?q=idaho&fo=json', 25],
+  ['detroit-nevada', 'https://www.loc.gov/collections/detroit-publishing-company/?q=nevada&fo=json', 25],
+  ['panoramic-montana', 'https://www.loc.gov/collections/panoramic-photographs/?q=montana&fo=json', 25],
+  ['stereo-dakota', 'https://www.loc.gov/collections/stereograph-cards/?q=dakota&fo=json', 30],
+  ['stereo-yellowstone', 'https://www.loc.gov/collections/stereograph-cards/?q=yellowstone&fo=json', 30],
+  ['stereo-yosemite', 'https://www.loc.gov/collections/stereograph-cards/?q=yosemite&fo=json', 30],
 ];
 
 export function parseImageUrl(raw) {

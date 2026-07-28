@@ -46,6 +46,11 @@ const SEARCHES = [
   // Source-expansion round (2026-07-27).
   ['wes', 'wagon', 30],
   ['wes', 'mining', 30],
+  // Vocabulary-expansion round (2026-07-28). DeGolyer catalogs use "Indians"
+  // as the period-standard descriptor.
+  ['wes', 'indians', 30],
+  ['wes', 'vaquero', 15],
+  ['wes', 'buffalo', 15],
 ];
 
 // Known site-wide DeGolyer citation-disclaimer sentences, matched and

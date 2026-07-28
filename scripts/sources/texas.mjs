@@ -30,6 +30,18 @@ const SEARCHES = [
   ['chuck wagon', 40],
   ['prairie', 60],
   ['wagon road', 40],
+  // Vocabulary-expansion round (2026-07-28).
+  ['vaquero', 40],
+  ['Buffalo Soldiers', 25],
+  ['Comanche', 30],
+  ['Kiowa', 20],
+  ['irrigation', 40],
+  ['Rio Grande', 40],
+  ['adobe', 25],
+  ['roundup', 30],
+  ['rodeo', 40],
+  ['grain elevator', 25],
+  ['mission', 30],
 ];
 
 const GENERIC_LICENSE_RE = /texashistory\.unt\.edu\/terms-of-use/i;

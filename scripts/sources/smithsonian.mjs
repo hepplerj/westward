@@ -94,7 +94,10 @@ export function sourceOf(unitCode) {
 // brief's named map, but common in this theme and worth admitting into
 // results via the fallback source name — see the query-syntax DEVIATION
 // note above for why this allowlist exists at all).
-const UNIT_ALLOWLIST = ['SAAM', 'NPG', 'NMAH', 'CHNDM', 'SIA', 'NMAAHC'];
+// NMAI (National Museum of the American Indian) added 2026-07-28 for the
+// vocabulary expansion; its media is often non-CC0, but the media_usage
+// query filter and per-media CC0 check gate that as with every unit.
+const UNIT_ALLOWLIST = ['SAAM', 'NPG', 'NMAH', 'CHNDM', 'SIA', 'NMAAHC', 'NMAI'];
 const UNITS_CLAUSE = `(${UNIT_ALLOWLIST.map((u) => `unit_code:"${u}"`).join(' OR ')})`;
 const MEDIA_CLAUSE = 'online_media_type:"Images" AND media_usage:"CC0"';
 
@@ -109,6 +112,12 @@ const QUERIES = [
   ['homestead', 'homestead', 15],
   ['bison-buffalo', '(bison OR buffalo)', 15],
   ['stagecoach', '(stagecoach OR "covered wagon")', 15],
+  // Vocabulary-expansion round (2026-07-28). No ceremony-targeted queries
+  // (owner's editorial policy).
+  ['indians-na', 'topic:"Indians of North America"', 40],
+  ['vaquero', '(vaquero OR vaqueros)', 15],
+  ['buffalo-soldiers', '"Buffalo Soldiers"', 15],
+  ['rodeo', 'rodeo', 15],
 ];
 
 function queryFor(fragment) {

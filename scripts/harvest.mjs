@@ -98,7 +98,7 @@ async function main() {
   const quick = process.argv.includes('--quick');
   const targets = quick
     ? { loc: 40, texas: 20, smu: 12, dpla: 15, smithsonian: 10 }
-    : { loc: 1600, texas: 550, smu: 200, dpla: 300, smithsonian: 120 };
+    : { loc: 2400, texas: 700, smu: 220, dpla: 400, smithsonian: 180 };
   const log = (msg) => console.error(msg);
 
   const locFetcher = createFetcher({ minIntervalMs: 3500 }); // LOC hard limit: 20/min

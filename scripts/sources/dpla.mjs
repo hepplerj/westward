@@ -80,12 +80,23 @@ const HUB_QUERIES = [
   ['p2p-homestead', { q: 'homestead', 'provider.name': PROVIDER_P2P }, 60],
   ['p2p-mining', { q: 'mining', 'provider.name': PROVIDER_P2P }, 50],
   ['p2p-cattle', { q: 'cattle', 'provider.name': PROVIDER_P2P }, 40],
+  // Vocabulary-expansion round (2026-07-28): nations of the CO/WY hub region
+  // + themes. No ceremony-targeted queries (owner's editorial policy).
+  ['p2p-ute', { q: 'Ute', 'provider.name': PROVIDER_P2P }, 25],
+  ['p2p-arapaho', { q: 'Arapaho', 'provider.name': PROVIDER_P2P }, 20],
+  ['p2p-cheyenne', { q: 'Cheyenne', 'provider.name': PROVIDER_P2P }, 25],
+  ['p2p-lakota', { q: 'Lakota', 'provider.name': PROVIDER_P2P }, 20],
+  ['p2p-irrigation', { q: 'irrigation', 'provider.name': PROVIDER_P2P }, 30],
+  ['p2p-rodeo', { q: 'rodeo', 'provider.name': PROVIDER_P2P }, 25],
 ];
 
 // (label, q, quota) — each iterates WEST_STATES via sourceResource.spatial.name.
 const STATE_QUERIES = [
   ['west-homesteading', 'homesteading', 45],
   ['west-cattle-ranch', 'cattle ranch', 45],
+  // Vocabulary-expansion round (2026-07-28).
+  ['west-irrigation', 'irrigation', 40],
+  ['west-buffalo-soldiers', 'Buffalo Soldiers', 25],
 ];
 
 // --- rights classification -------------------------------------------------
