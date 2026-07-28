@@ -41,15 +41,31 @@
 // facets on our actual queries show `CNE` (Copyright Not Evaluated) and
 // `UND` (Copyright Undetermined) as the two MOST common rightsstatements.org
 // values (923 and 208 of ~2300 in one facet sample) — ambiguous, not in the
-// brief's named list, but squarely "any other rightsstatements.org URI"
-// under its veto rule, so they're dropped like InC/NoC-NC. Also seen live:
-// non-public-domain Creative Commons licenses (e.g. `creativecommons.org/licenses/by-nc/4.0/`,
-// 28 hits in the same facet) — not `.../publicdomain/...`, so not the open
-// case, and not a rightsstatements.org URI either. Per this project's
-// stated policy (public domain / no-known-restrictions only — see README),
-// these are treated as restrictive same as any other recognized rights URI
-// that isn't the two explicitly-open forms; see the classifyRightsValue
-// test cases pinning CC-BY-NC as dropped.
+// brief's named list. Also seen live: non-public-domain Creative Commons
+// licenses (e.g. `creativecommons.org/licenses/by-nc/4.0/`, 28 hits in the
+// same facet) — not `.../publicdomain/...`, so not the open case, and not a
+// rightsstatements.org URI either. Per this project's stated policy (public
+// domain / no-known-restrictions only — see README), non-PD CC licenses are
+// treated as restrictive same as any other recognized rights URI that isn't
+// one of the two explicitly-open forms; see the classifyRightsValue test
+// cases pinning CC-BY-NC as dropped.
+//
+// POLICY (CNE/UND, decided 2026-07-27, project owner via controller): CNE
+// and UND are NOT a hard veto like InC/NoC-NC/etc. Both mean "the holding
+// institution has not made a rights determination" — an absence of
+// evaluation, not a determination that the item is restricted. That is a
+// different epistemic category from "we evaluated this and it's still
+// under copyright" (InC and its variants), which continues to veto
+// unconditionally regardless of date. Pre-1931 US publication is public
+// domain by operation of law — an independent legal basis that doesn't
+// depend on the holding institution having evaluated the item at all — so a
+// record whose only rights signal is CNE and/or UND falls back to the same
+// shared <=1930 date rule used when there is no rights value present at
+// all (see dplaRightsOpen). A genuinely restrictive URI anywhere in the
+// values still vetoes even alongside a CNE/UND value; an explicit open URI
+// anywhere still keeps even alongside a CNE/UND value (CNE/UND never vetoes
+// on its own terms — it just doesn't count as the required open signal
+// either, unless the date fallback grants it one).
 
 import { isRightsOpen } from '../lib/rights.mjs';
 import { probeImageSize } from '../lib/image-size.mjs';
@@ -76,27 +92,38 @@ const STATE_QUERIES = [
 
 const OPEN_URI_RE = /creativecommons\.org\/publicdomain|rightsstatements\.org\/vocab\/NoC-US\b/i;
 const URI_RE = /^https?:\/\//i;
+// CNE (Copyright Not Evaluated) and UND (Copyright Undetermined): "no
+// determination made," not "determined restricted" — see the POLICY note
+// above. Handled as their own category, distinct from genuinely restrictive
+// rightsstatements.org URIs (InC, InC-*, NoC-NC, NoC-OKLR, ...).
+const UNEVALUATED_URI_RE = /rightsstatements\.org\/vocab\/(CNE|UND)\b/i;
 const KNOWN_RIGHTS_DOMAIN_RE = /rightsstatements\.org|creativecommons\.org/i;
 
-// Classify a single rights value. URIs: CC0/PDM or NoC-US are 'open'; any
-// other rightsstatements.org or creativecommons.org URI is 'restrictive'
-// (see the module-level DEVIATION note on CNE/UND/non-PD CC licenses). Free
-// text: delegate to the shared isRightsOpen regex.
+// Classify a single rights value: 'open' (CC0/PDM/NoC-US, or free text
+// matching the shared isRightsOpen regex), 'unevaluated' (CNE/UND — see the
+// POLICY note above; eligible for the <=1930 date fallback but not itself an
+// open signal), or 'restrictive' (any other rightsstatements.org or
+// creativecommons.org URI, or free text that doesn't match isRightsOpen —
+// see the module-level DEVIATION note on non-PD CC licenses).
 function classifyRightsValue(raw) {
   const v = String(raw ?? '').trim();
   if (!v) return null;
   if (URI_RE.test(v)) {
     if (OPEN_URI_RE.test(v)) return 'open';
+    if (UNEVALUATED_URI_RE.test(v)) return 'unevaluated';
     if (KNOWN_RIGHTS_DOMAIN_RE.test(v)) return 'restrictive';
     return 'restrictive'; // unrecognized rights URI: treat conservatively as restrictive
   }
   return isRightsOpen(v, null) ? 'open' : 'restrictive';
 }
 
-// A record is kept only if at least one rights value is explicitly open AND
+// A record is kept if: (a) at least one rights value is explicitly open AND
 // no value is restrictive (first restrictive value vetoes immediately, even
-// if an open value was already seen). With no rights values at all, fall
-// back to the shared <=1930 date rule.
+// if an open value was already seen); OR (b) every present value is either
+// 'unevaluated' (CNE/UND) or absent, and the record's date is <=1930 (see
+// the POLICY note above — the date rule applies to "unevaluated" the same
+// way it already applies to "no rights value present at all"). With no
+// rights values at all, this collapses to the original date-only fallback.
 export function dplaRightsOpen(values, date) {
   const flat = [values].flat(2).map((v) => String(v ?? '').trim()).filter(Boolean);
   if (!flat.length) return isRightsOpen(null, date);
@@ -106,7 +133,10 @@ export function dplaRightsOpen(values, date) {
     if (cls === 'restrictive') return false;
     if (cls === 'open') anyOpen = true;
   }
-  return anyOpen;
+  if (anyOpen) return true;
+  // No restrictive veto, no open signal: every present value was
+  // 'unevaluated' (CNE/UND). Fall back to the shared <=1930 date rule.
+  return isRightsOpen(null, date);
 }
 
 // --- parsing ----------------------------------------------------------------

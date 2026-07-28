@@ -44,9 +44,50 @@ test('dplaRightsOpen: open free text alongside a restrictive URI is dropped (vet
   assert.equal(dplaRightsOpen(['Public domain.', 'http://rightsstatements.org/vocab/InC/1.0/'], '2000'), false);
 });
 
-test('dplaRightsOpen: live-observed CNE and UND rightsstatements.org values are dropped (ambiguous, not one of the two open forms)', () => {
+// CNE ("Copyright Not Evaluated") and UND ("Copyright Undetermined") are
+// treated as "unevaluated," not restrictive: the holding institution simply
+// hasn't determined rights, which is an independent question from whether
+// the item is actually in the public domain. Pre-1931 US publication is
+// public domain by operation of law regardless of what any institution has
+// evaluated, so a CNE/UND-only record still gets the shared <=1930 date
+// fallback — same rationale as the "no rights value at all" fallback,
+// applied to "rights value present but unevaluated."
+test('dplaRightsOpen: CNE + pre-1931 date is kept (date fallback applies to "unevaluated", not just "absent")', () => {
+  assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/CNE/1.0/'], '1890'), true);
+});
+
+test('dplaRightsOpen: CNE + post-1930 date is dropped', () => {
+  assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/CNE/1.0/'], '1950'), false);
+});
+
+test('dplaRightsOpen: CNE + no date at all is dropped', () => {
   assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/CNE/1.0/'], null), false);
-  assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/UND/1.0/'], '1900'), false);
+});
+
+test('dplaRightsOpen: UND + pre-1931 date is kept (same epistemic category as CNE)', () => {
+  assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/UND/1.0/'], '1890'), true);
+});
+
+test('dplaRightsOpen: UND + post-1930 date is dropped', () => {
+  assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/UND/1.0/'], '1950'), false);
+});
+
+test('dplaRightsOpen: InC + pre-1931 date is still dropped (genuinely restrictive, no date exception)', () => {
+  assert.equal(dplaRightsOpen(['http://rightsstatements.org/vocab/InC/1.0/'], '1890'), false);
+});
+
+test('dplaRightsOpen: CNE alongside an explicit InC URI is still dropped (restrictive veto survives mixed signals)', () => {
+  assert.equal(dplaRightsOpen([
+    'http://rightsstatements.org/vocab/CNE/1.0/',
+    'http://rightsstatements.org/vocab/InC/1.0/',
+  ], '1890'), false);
+});
+
+test('dplaRightsOpen: CNE alongside an explicit open URI is kept (open signal wins, CNE does not veto)', () => {
+  assert.equal(dplaRightsOpen([
+    'http://rightsstatements.org/vocab/CNE/1.0/',
+    'http://rightsstatements.org/vocab/NoC-US/1.0/',
+  ], null), true);
 });
 
 test('dplaRightsOpen: a non-public-domain Creative Commons license (e.g. BY-NC) is dropped', () => {
