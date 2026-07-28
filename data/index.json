@@ -1,11 +1,16 @@
 {
-  "generated": "2026-07-27T14:22:25.538Z",
-  "total": 1063,
-  "chunkCount": 11,
+  "generated": "2026-07-28T16:15:25.516Z",
+  "total": 1898,
+  "chunkCount": 19,
   "chunkSize": 100,
   "sources": {
-    "Library of Congress": 741,
-    "Portal to Texas History": 208,
-    "SMU DeGolyer Library": 114
+    "Library of Congress": 1088,
+    "Portal to Texas History": 454,
+    "SMU DeGolyer Library": 155,
+    "University of Wyoming, American Heritage Center": 109,
+    "Wyoming State Archives": 45,
+    "University of Colorado Boulder University Libraries": 24,
+    "Denver Public Library": 22,
+    "Pikes Peak Library District": 1
   }
 }
