@@ -96,18 +96,17 @@ async function main() {
   const quick = process.argv.includes('--quick');
   const targets = quick
     ? { loc: 40, texas: 20, smu: 12, dpla: 15 }
-    : { loc: 1000, texas: 350, smu: 150, dpla: 300 };
+    : { loc: 1600, texas: 550, smu: 200, dpla: 300 };
   const log = (msg) => console.error(msg);
 
   const locFetcher = createFetcher({ minIntervalMs: 3500 }); // LOC hard limit: 20/min
   const fastFetcher = createFetcher({ minIntervalMs: 350 });
 
-  // harvestDpla throws synchronously-in-a-promise when DPLA_API_KEY is unset
-  // (its only top-level throw path — everything else is caught per-request
-  // inside the module, same as the other three sources). Caught here so a
-  // missing key skips DPLA without failing the whole harvest.
-  const dplaPromise = harvestDpla(createFetcher({ minIntervalMs: 350 }), { target: targets.dpla, log })
-    .catch(() => { log('dpla: skipped (no DPLA_API_KEY)'); return []; });
+  // Explicit pre-check for DPLA_API_KEY: skip only if unset, so genuine
+  // harvestDpla rejections propagate loudly instead of silently returning [].
+  const dplaPromise = process.env.DPLA_API_KEY
+    ? harvestDpla(createFetcher({ minIntervalMs: 350 }), { target: targets.dpla, log })
+    : (log('dpla: skipped (no DPLA_API_KEY)'), Promise.resolve([]));
 
   const [loc, texas, smu, dpla] = await Promise.all([
     harvestLoc(locFetcher, { target: targets.loc, log }),

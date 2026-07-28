@@ -27,9 +27,10 @@ function buildGif(width, height) {
   return buf;
 }
 
-// Minimal synthetic JPEG: SOI + an APP0 filler segment + SOF0 carrying
-// height/width + EOI.
-function buildJpeg(width, height) {
+// Minimal synthetic JPEG: SOI + an APP0 filler segment + SOF marker carrying
+// height/width + EOI. Accepts a SOF marker (0xC0 for SOF0/baseline, 0xC2 for
+// SOF2/progressive, etc.); defaults to SOF0 for backward compatibility.
+function buildJpeg(width, height, sofMarker = 0xc0) {
   const parts = [];
   parts.push(Buffer.from([0xff, 0xd8])); // SOI
   const app0 = Buffer.alloc(2 + 2 + 5);
@@ -37,14 +38,14 @@ function buildJpeg(width, height) {
   app0.writeUInt16BE(2 + 5, 2);
   app0.write('JFIF\0', 4, 'ascii');
   parts.push(app0);
-  const sof0 = Buffer.alloc(2 + 2 + 1 + 2 + 2 + 1);
-  sof0.set([0xff, 0xc0], 0);
-  sof0.writeUInt16BE(2 + 1 + 2 + 2 + 1, 2); // segment length
-  sof0.writeUInt8(8, 4); // precision
-  sof0.writeUInt16BE(height, 5);
-  sof0.writeUInt16BE(width, 7);
-  sof0.writeUInt8(1, 9); // components (irrelevant here)
-  parts.push(sof0);
+  const sof = Buffer.alloc(2 + 2 + 1 + 2 + 2 + 1);
+  sof.set([0xff, sofMarker], 0);
+  sof.writeUInt16BE(2 + 1 + 2 + 2 + 1, 2); // segment length
+  sof.writeUInt8(8, 4); // precision
+  sof.writeUInt16BE(height, 5);
+  sof.writeUInt16BE(width, 7);
+  sof.writeUInt8(1, 9); // components (irrelevant here)
+  parts.push(sof);
   parts.push(Buffer.from([0xff, 0xd9])); // EOI
   return Buffer.concat(parts);
 }
@@ -59,6 +60,38 @@ test('imageSizeFromBuffer parses a synthetic GIF logical screen descriptor', () 
 
 test('imageSizeFromBuffer parses a synthetic JPEG SOF0 segment', () => {
   assert.deepEqual(imageSizeFromBuffer(buildJpeg(640, 480)), { width: 640, height: 480 });
+});
+
+test('imageSizeFromBuffer parses a synthetic JPEG SOF2 segment', () => {
+  assert.deepEqual(imageSizeFromBuffer(buildJpeg(800, 600, 0xc2)), { width: 800, height: 600 });
+});
+
+test('imageSizeFromBuffer skips a DHT segment and finds SOF2 marker', () => {
+  // Build a JPEG with DHT (0xC4) before SOF2 to verify the parser skips non-SOF markers.
+  const parts = [];
+  parts.push(Buffer.from([0xff, 0xd8])); // SOI
+  const app0 = Buffer.alloc(2 + 2 + 5);
+  app0.set([0xff, 0xe0], 0);
+  app0.writeUInt16BE(2 + 5, 2);
+  app0.write('JFIF\0', 4, 'ascii');
+  parts.push(app0);
+  // Add DHT segment (0xC4) before SOF2
+  const dht = Buffer.alloc(2 + 2 + 16 + 12); // typical DHT length
+  dht.set([0xff, 0xc4], 0);
+  dht.writeUInt16BE(2 + 16 + 12, 2);
+  parts.push(dht);
+  // Now add SOF2 with dimensions
+  const sof2 = Buffer.alloc(2 + 2 + 1 + 2 + 2 + 1);
+  sof2.set([0xff, 0xc2], 0);
+  sof2.writeUInt16BE(2 + 1 + 2 + 2 + 1, 2);
+  sof2.writeUInt8(8, 4);
+  sof2.writeUInt16BE(480, 5);
+  sof2.writeUInt16BE(320, 7);
+  sof2.writeUInt8(1, 9);
+  parts.push(sof2);
+  parts.push(Buffer.from([0xff, 0xd9])); // EOI
+  const buf = Buffer.concat(parts);
+  assert.deepEqual(imageSizeFromBuffer(buf), { width: 320, height: 480 });
 });
 
 test('imageSizeFromBuffer parses a real JPEG thumbnail captured from a live DPLA object URL', () => {
