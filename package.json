@@ -10,6 +10,7 @@
     "harvest": "node scripts/harvest.mjs",
     "harvest:quick": "node scripts/harvest.mjs --quick",
     "check-images": "node scripts/check-images.mjs",
-    "triage": "node scripts/triage.mjs"
+    "triage": "node scripts/triage.mjs",
+    "og-card": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=og-card.png --window-size=1200,630 --hide-scrollbars --virtual-time-budget=15000 \"http://localhost:8080\""
   }
 }
