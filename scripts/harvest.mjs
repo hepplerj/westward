@@ -4,6 +4,7 @@
 
 import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises';
 import { loadEnv } from './lib/env.mjs';
+import { geoTriage, triageSummary } from './lib/geo-triage.mjs';
 import { createFetcher } from './lib/fetch-util.mjs';
 import { harvestLoc } from './sources/loc.mjs';
 import { harvestTexas } from './sources/texas.mjs';
@@ -120,8 +121,12 @@ async function main() {
   for (const [r, err] of invalid) log(`invalid record dropped (${err}): ${r.id}`);
   const valid = all.filter((r) => !validateRecord(r));
 
+  const { kept, dropped } = geoTriage(valid);
+  if (dropped.length) log(triageSummary(dropped));
+  const keptSet = new Set(kept);
+
   const stream = interleave([shuffle(loc), shuffle(texas), shuffle(smu), shuffle(dpla)].map(
-    (list) => list.filter((r) => valid.includes(r)),
+    (list) => list.filter((r) => keptSet.has(r)),
   ));
 
   const chunks = chunk(stream, CHUNK_SIZE);
