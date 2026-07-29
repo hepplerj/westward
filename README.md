@@ -2,15 +2,12 @@
 
 Live at [westward.jasonheppler.org](https://westward.jasonheppler.org).
 
-An endless, full-screen scroll of public-domain photographs of the American
-West — homesteading, ranching, frontier life — drawn from the Library of
+An endless, full-screen scroll of public domain photographs of the American
+West — homesteading, ranching, frontier life drawn from the Library of
 Congress, the Portal to Texas History, SMU's DeGolyer Library, the
-Digital Public Library of America (Denver Public Library and partners via
-the Plains to Peaks Collective), and the Smithsonian Open Access initiative.
+Digital Public Library of America, and the Smithsonian.
 
-Static site: `index.html` + `style.css` + `app.js` + `data/`. No build step,
-no dependencies. Deploy by serving the repository root (GitHub Pages,
-Netlify, `python3 -m http.server`).
+Static site: `index.html` + `style.css` + `app.js` + `data/`.
 
 ## Refreshing the data
 
